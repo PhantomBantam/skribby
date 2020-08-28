@@ -1,0 +1,56 @@
+
+<header>
+  <h1>Skribbly!</h1>
+
+  <form id="leave-form" action="index.html">   
+    <button >Leave Room</button>
+  </form>
+  
+</header>
+
+<div id="game-contents">
+
+  <div id="player-container">
+    <div class="player">
+      George - 1000
+    </div>
+    <div class="player">
+      Jimmy - 800
+    </div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas" style="border: 10px solid white">
+  </div>
+  
+  </canvas>
+  
+  
+  <div id="chat-container" >
+  
+    <main id="chat-main">
+      <div id="chat-messages">
+          <div class="message">
+          </div>
+      </div>
+    </main>
+  
+  
+    <div id="chat-form-container">
+      <form id="chat-form">
+        <input
+          id="msg"
+          type="text"
+          placeholder="Message"
+          required  
+          autocomplete="off"
+        />
+      </form>
+    </div>
+  
+  </div>
+  
+  
+</div>
+
+<script src="/game.js"></script>
