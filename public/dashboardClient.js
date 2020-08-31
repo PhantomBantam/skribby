@@ -9,8 +9,7 @@ fetch('./api/user_data')
     userInfo = data
     socket.emit('start', userInfo);
   })
-  .catch(err=>console.log(err));
-
+  .catch(err=>console.log(err));npm
 
 createGameBtn.addEventListener('click', (e)=>{
   socket.emit('createGame');

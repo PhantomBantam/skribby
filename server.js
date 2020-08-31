@@ -47,11 +47,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const games = require('./routes/games');
 const users = require('./routes/users');
-const dashboard = require('./routes/dashboard');
 
 app.use('/games', games);
 app.use('/users', users);
-app.use('/dashboard', dashboard);
 
 
 server.listen(PORT, ()=>{console.log('SERVER RUNNING ON PORT: ' + PORT);});

@@ -1,27 +1,16 @@
 const express = require('express');
 const io = require('../socketio');
 const Game = require('../models/Game');
-
+const passport = require('passport');
 
 const router = express.Router();
 
 router.get('/', (req, res)=>{
-  console.log(req.authInfo);
-  console.log('hey');
-  if(req.isAuthenticated()){
-    res.render('dashboard');
-  } else {
-    res.render('dashboard');
-  }
-});
 
-router.get('/api/user_data', (req, res)=>{
-  if(req.user === undefined){
-    res.json({});
-  }else{
-    res.json({
-      user: req.user
-    });
+  if(req.isAuthenticated()){
+    res.render('dashboard', {nickname:req.user.nickname});
+  } else {
+    res.render('login');
   }
 });
 
@@ -36,7 +25,6 @@ function makeid(length) {
 }
 
 io.on('connect', socket=>{
-  
   socket.on('createGame', async ()=>{
     let id = makeid(7);
     let found = await Game.findOne({code:id});

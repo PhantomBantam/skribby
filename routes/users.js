@@ -24,7 +24,6 @@ router.post('/login', async (req, res, next)=>{
   let userData = req.body;
   passport.authenticate('local', (err, user, info) => {
     if(info.message == "ok"){
-      console.log(user);
       req.login(user, (err) => {    
         res.render('dashboard', {nickname:user.nickname});
       })  
@@ -193,6 +192,9 @@ async function checkFields(pass1, pass2, email){
   }
   return errors;
 }
+
+const dashboard = require('./dashboard');
+router.use('/dashboard', dashboard);
 
 
 module.exports = router;
