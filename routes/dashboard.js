@@ -41,8 +41,14 @@ io.on('connect', socket=>{
       .then(()=>{
         socket.emit('createdNewGame', {id});
       })
-    
   });
+
+  socket.on('joinGame', async({code})=>{
+    try{
+      let game = await Game.findOne({code:code});
+      socket.emit('game', {game});  
+    }catch(err){console.log(err);}
+  })
 });
 
 module.exports = router;

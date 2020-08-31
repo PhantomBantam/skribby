@@ -6,11 +6,15 @@
   </h1>
 <%}%>
 
-<button id="create-game-btn">Create A Game!</button>
 
 <form action="/users/logout" method="GET" id="logout-btn">
   <button type="submit">Logout</button>
 </form>
+
+<button id="create-game-btn">Create A Game!</button>
+
+<input id="game-code-input" type="text" required placeholder="game code!">
+<button id="join-btn">Join Game</button>
 
 <script src="/socket.io/socket.io.js"></script> 
 <script src="/dashboardClient.js"></script>
