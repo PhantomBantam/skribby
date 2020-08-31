@@ -26,7 +26,7 @@ function draw(e){
     context.lineWidth = penWidth;
     context.lineCap = "round";
     context.lineTo(mousePos.x, mousePos.y);
-    socket.emit('draw', {mousePos});
+    socket.emit('draw', {code, mousePos});
 
     context.stroke();
   }else {

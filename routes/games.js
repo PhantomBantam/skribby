@@ -5,8 +5,15 @@ const router = express.Router();
 const io = require('../socketio');
 const Game = require('../models/Game');
 
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers
+} = require('../utils/userList');
+
 let words = [];
-setWords();
+setWords()
 
 router.get('/', (req, res)=>{
   if(req.isAuthenticated()){
@@ -36,36 +43,15 @@ io.on('connection', socket=>{
   io.emit('data', ({word1, word2, word3}))
 
 
-  // socket.on('joinRoom', ({ username, room }) => {
-  //   const user = userJoin(socket.id, username, room);
-  //   socket.join(user.room);
-  //   // Welcome current user
-  //   socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
-  //   // Broadcast when a user connects
-  //   socket.broadcast
-  //     .to(user.room)
-  //     .emit(
-  //       'message',
-  //       formatMessage(botName, `${user.username} has joined the chat`)
-  //     );
-
-  //   // Send users and room info
-  //   io.to(user.room).emit('roomUsers', {
-  //     room: user.room,
-  //     users: getRoomUsers(user.room)
-  //   });
-  // });
-
-  socket.on('joinRoom', ({code, nickname})=>{
-    //copy da above
+  socket.on('joinRoom', ({code, nickname}) => {
+    const user = userJoin(socket.id, nickname, code);
     socket.join(code);
-
+    // Welcome current user
+    socket.emit('message', 'Welcome ' + nickname + "!");
   });
 
-
-  socket.on('draw', ({mousePos})=>{
-    console.log(mousePos);
-    socket.broadcast.emit('getDraw', {mousePos});
+  socket.on('draw', ({mousePos, code})=>{
+    io.to(code).emit('getDraw', {mousePos});
   });
 });
 

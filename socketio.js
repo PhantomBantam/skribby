@@ -17,5 +17,12 @@ module.exports = {
       if(io){
         io.sockets.on(event, callback);
       }  
+    },
+
+    to: function(room) {
+      if(io){
+        return io.to(room);
+      }  
+      return null;
     }
 }
