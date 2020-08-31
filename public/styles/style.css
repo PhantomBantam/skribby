@@ -31,15 +31,16 @@ body, html, #container, #game-contents{
 #player-container {
   border: white solid 10px;
   height: 80%;
-  width: 20%;
+  width: 15%;
 }
 
 #canvas-container {
   width: 60%;
-  height: 80%;
+  height: 77%;
 }
 
 #chat-container{
   border: white solid 10px;
   height: 80%;
+  width: 30%;
 }

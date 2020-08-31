@@ -1,0 +1,16 @@
+<h1>Password Reset</h1>
+
+<%- include ("./partials/messages") %>
+
+<form method="POST">
+  <input name="password1" type="password" id="password-reg" placeholder="Password" required
+  value="<%= typeof password != 'undefined' ? password : '' %>">
+
+  <input name="password2" type="password" id="comf-password-reg" placeholder="Comfirm Password" required
+  value="<%= typeof password2 != 'undefined' ? password2 : '' %>">
+  <button type="submit">Reset Password</button>
+</form>
+
+<form action="/users/register" method="GET">
+  <button>Don't have an account?</button>
+</form>

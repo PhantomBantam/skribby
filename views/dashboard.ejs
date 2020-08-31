@@ -1,0 +1,16 @@
+<% if(typeof nickname != 'undefined'){ %> 
+  <div class="" role="alert">
+  </div>
+  <h1>
+    Welcome <%= nickname %>!
+  </h1>
+<%}%>
+
+<button id="create-game-btn">Create A Game!</button>
+
+<form action="/users/logout" method="GET" id="logout-btn">
+  <button type="submit">Logout</button>
+</form>
+
+<script src="/socket.io/socket.io.js"></script> 
+<script src="/dashboardClient.js"></script>
