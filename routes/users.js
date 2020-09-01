@@ -39,7 +39,7 @@ router.post('/login', async (req, res, next)=>{
 
 router.post('/register', async (req, res)=>{
   let userData = req.body;
-  let errors = await checkFields(userData.password1, userData.password2, userData.email);
+  let errors = await checkFields(userData.password1, userData.password2, userData.email, userData.nickname);
   if(errors.length==0){
     let user = new User({
       email:userData.email,
@@ -48,11 +48,15 @@ router.post('/register', async (req, res)=>{
     });
 
     //Password hashing is done by schema
-    await user.save();
-    req.flash('success_msg', 'You are registered and can now login');
-    req.flash('error_msg', '');
-
-    res.redirect("/users/login");
+    try{
+      await user.save();
+      req.flash('success_msg', 'You are registered and can now login');
+      req.flash('error_msg', '');  
+      res.redirect("/users/login");
+    }catch(err){
+      res.json(err); 
+      console.log(err);
+    }
   }else{
     res.render('register', {
       errors,
@@ -175,12 +179,16 @@ router.get('/logout', (req, res)=>{
   res.redirect('/users/login');
 });
 
-async function checkFields(pass1, pass2, email){
+async function checkFields(pass1, pass2, email, nickname){
   let errors = [];
   if(pass1.length<6){
-    errors.push({msg:"Password must be at least 6 characters long"});
+    errors.push({msg:"Password must be at least 6 characters long!"});
   }else if(pass1 != pass2){
     errors.push({msg:"Passwords do not match!"});
+  }
+
+  if(nickname.length>10){
+    errors.push({msg:"Nickname can't be more than 10 characters long!"});
   }
 
   if(errors.length == 0){

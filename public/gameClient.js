@@ -1,6 +1,7 @@
 const socket = io();
 const canvas = document.getElementById('canvas');
 const canvasContainer = document.getElementById('canvas-container');
+const playerContainer = document.getElementById('player-container');
 
 var penWidth = 10;
 
@@ -10,9 +11,11 @@ let painting = false;
 var urlArr = window.location.href.split('/');
 var urlEnd = urlArr[urlArr.length-1];
 const code = urlEnd.split('?')[0];
-const nickname = urlEnd.split('?')[1].replace('nickname=', '');
+const email = urlEnd.split('?')[1].replace('email=', '');
 
-socket.emit('joinRoom', {code, nickname});
+let usersList = [];
+
+socket.emit('joinRoom', {code, email});
 
 
 //resizing canvas
@@ -59,6 +62,18 @@ socket.on('getDraw', ({mousePos})=>{
   context.stroke();
 }); 
 
+socket.on('userList', ({users})=>{
+  usersList = users;
+  playerContainer.innerHTML = '';
+  users.forEach(user => {
+    let div = document.createElement('div');
+
+    div.setAttribute('class', 'player');
+    div.innerHTML = user.nickname;
+    
+    playerContainer.appendChild(div);  
+  });
+});
 
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();

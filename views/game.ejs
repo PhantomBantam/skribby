@@ -11,22 +11,15 @@
 <div id="game-contents">
 
   <div id="player-container">
-    <div class="player">
-      George - 1000
-    </div>
-    <div class="player">
-      Jimmy - 800
-    </div>
   </div>
 
   <div id="canvas-container">
-    <canvas id="canvas" style="border: 10px solid white">
+    <canvas id="canvas" style="border: 10px solid white">  </canvas>
   </div>
   
-  </canvas>
   
   
-  <div id="chat-container" >
+  <div id="chat-container" style="position: relative;" >
   
     <main id="chat-main">
       <div id="chat-messages">
@@ -36,16 +29,15 @@
     </main>
   
   
-    <div id="chat-form-container">
-      <form id="chat-form">
-        <input
-          id="msg"
-          type="text"
-          placeholder="Message"
-          required  
-          autocomplete="off"
-        />
-      </form>
+    <div id="chat-form-container" style="position: absolute; bottom:0; width:100%">
+      <input
+        id="msg"
+        type="text"
+        placeholder="Message"
+        required  
+        autocomplete="off"
+        style=" width:90%"
+      />
     </div>
   </div>
 </div>

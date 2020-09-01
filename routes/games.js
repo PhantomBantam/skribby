@@ -4,6 +4,7 @@ const path = require('path');
 const router = express.Router();
 const io = require('../socketio');
 const Game = require('../models/Game');
+const User = require('../models/User');
 
 const {
   userJoin,
@@ -43,11 +44,15 @@ io.on('connection', socket=>{
   io.emit('data', ({word1, word2, word3}))
 
 
-  socket.on('joinRoom', ({code, nickname}) => {
-    const user = userJoin(socket.id, nickname, code);
+  socket.on('joinRoom', async ({code, email}) => {
+    const user = await User.findOne({email:email});
+    if(!getCurrentUser(email)){
+      userJoin(socket.id, email, code, user.nickname);
+    }
     socket.join(code);
     // Welcome current user
-    socket.emit('message', 'Welcome ' + nickname + "!");
+    io.to(code).emit('message', 'Welcome ' + user.nickname + "!");
+    io.to(code).emit('userList', {users:getRoomUsers(code)});
   });
 
   socket.on('draw', ({mousePos, code})=>{

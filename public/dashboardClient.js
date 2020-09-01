@@ -29,6 +29,6 @@ socket.on('game', ({game})=>{
   if(game==null){
     alert("Game not found");
   }else{
-    window.location.href = '/games/' + game.code + "?nickname="+userInfo.nickname;
+    window.location.href = '/games/' + game.code + "?email="+userInfo.email;
   }
 })

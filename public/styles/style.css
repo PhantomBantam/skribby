@@ -32,6 +32,12 @@ body, html, #container, #game-contents{
   border: white solid 10px;
   height: 80%;
   width: 15%;
+  
+}
+
+.player{
+  font-size: 1.5rem;
+  text-align: center;
 }
 
 #canvas-container {
@@ -43,4 +49,8 @@ body, html, #container, #game-contents{
   border: white solid 10px;
   height: 80%;
   width: 30%;
+}
+
+#chat-main, #chat-form-container{
+
 }
