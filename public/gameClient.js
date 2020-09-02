@@ -87,17 +87,33 @@ socket.on('userList', ({users})=>{
   });
 });
 
-socket.on('getMessage', ({message, nickname, messageWhite})=>{
+socket.on('sendMessage', ({message, nickname, messageWhite})=>{
   let div = document.createElement('div');
-  
   if(messageWhite){
     div.setAttribute('class', 'message white');
   }else{
     div.setAttribute('class', 'message');
   }
+  console.log(nickname);
+  let current = div.getAttribute('class');
 
-  div.innerHTML = nickname + ": " +  message;
-  chatMessages.appendChild(div);
+  switch(nickname){
+    case 'leave': 
+      div.innerHTML = message;
+      div.setAttribute('class', current + " leaveMsg");
+      break;
+
+    case 'join': 
+      div.innerHTML = message;
+      div.setAttribute('class', current + " joinMsg");
+      break;
+
+    
+    default: 
+      div.innerHTML = nickname + ": " +  message;
+    
+  }
+  chatMessages.appendChild(div);    
 }); 
 
 function getMousePos(canvas, evt) {

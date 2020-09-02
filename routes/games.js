@@ -48,24 +48,32 @@ io.on('connection', socket=>{
 
   socket.on('joinRoom', async ({code, email}) => {
     const user = await User.findOne({email:email});
+    io.emit('sendMessage', {message: "Welcome " + user.nickname + "!", nickname: 'join', messageWhite});
     if(!getCurrentUser(email)){
       userJoin(socket.id, email, code, user.nickname);
     }
     socket.join(code);
     // Welcome current user
-    io.to(code).emit('message', 'Welcome ' + user.nickname + "!");
-    io.to(code).emit('userList', {users:getRoomUsers(code)});
-  });
+    io.emit('message', 'Welcome ' + user.nickname + "!");
+    io.emit('userList', {users:getRoomUsers(code)});
 
-  socket.on('draw', ({mousePos, code})=>{
-    io.to(code).emit('getDraw', {mousePos});
+    socket.on('draw', ({mousePos, code})=>{
+      io.emit('getDraw', {mousePos});
+    });
+  
+    socket.on('chatMessage', ({code, message, email})=>{
+      io.emit('sendMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
+      messageWhite = !messageWhite;
+    });
+  
+    socket.on('disconnect', ()=>{
+      console.log('hey');
+      const user = userLeave(socket.id);
+      if(user){ 
+        io.emit('sendMessage', {message: user.nickname + " has left", nickname: 'leave', messageWhite});
+      }
+    });
   });
-
-  socket.on('chatMessage', ({code, message, email})=>{
-    // io.to(code).emit('getDraw', {mousePos});
-    io.to(code).emit('getMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
-    messageWhite = !messageWhite;
-  })
 });
 
 function setWords(){
