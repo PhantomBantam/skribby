@@ -6,6 +6,8 @@ const io = require('../socketio');
 const Game = require('../models/Game');
 const User = require('../models/User');
 
+let messageWhite = false;
+
 const {
   userJoin,
   getCurrentUser,
@@ -58,6 +60,12 @@ io.on('connection', socket=>{
   socket.on('draw', ({mousePos, code})=>{
     io.to(code).emit('getDraw', {mousePos});
   });
+
+  socket.on('chatMessage', ({code, message, email})=>{
+    // io.to(code).emit('getDraw', {mousePos});
+    io.to(code).emit('getMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
+    messageWhite = !messageWhite;
+  })
 });
 
 function setWords(){

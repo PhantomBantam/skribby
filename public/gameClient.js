@@ -2,6 +2,8 @@ const socket = io();
 const canvas = document.getElementById('canvas');
 const canvasContainer = document.getElementById('canvas-container');
 const playerContainer = document.getElementById('player-container');
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.getElementById('chat-messages');
 
 var penWidth = 10;
 
@@ -47,6 +49,16 @@ canvas.addEventListener('mouseleave', (e)=>{
   context.beginPath();
 });
 
+chatForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  let message = (e.target.children[0].value);
+
+  if(message!=''){
+    e.target.elements.msg.value = "";
+    socket.emit('chatMessage', {code, message, email});
+  }
+});
+
 canvas.addEventListener('mousemove', draw);
 
 socket.on('data', ({word1, word2, word3})=>{
@@ -74,6 +86,19 @@ socket.on('userList', ({users})=>{
     playerContainer.appendChild(div);  
   });
 });
+
+socket.on('getMessage', ({message, nickname, messageWhite})=>{
+  let div = document.createElement('div');
+  
+  if(messageWhite){
+    div.setAttribute('class', 'message white');
+  }else{
+    div.setAttribute('class', 'message');
+  }
+
+  div.innerHTML = nickname + ": " +  message;
+  chatMessages.appendChild(div);
+}); 
 
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();

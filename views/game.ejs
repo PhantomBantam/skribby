@@ -17,28 +17,24 @@
     <canvas id="canvas" style="border: 10px solid white">  </canvas>
   </div>
   
-  
-  
   <div id="chat-container" style="position: relative;" >
-  
-    <main id="chat-main">
+    <main id="chat-main" >
       <div id="chat-messages">
-          <div class="message">
-          </div>
       </div>
     </main>
   
-  
     <div id="chat-form-container" style="position: absolute; bottom:0; width:100%">
-      <input
-        id="msg"
-        type="text"
-        placeholder="Message"
-        required  
-        autocomplete="off"
-        style=" width:90%"
-      />
+      <form id="chat-form" style="bottom:0; width:100%">
+        <input
+          id="msg"
+          type="text"
+          placeholder="Message"
+          autocomplete="off"
+          style="bottom:0; width:90%"
+        />
+      </form>
     </div>
+
   </div>
 </div>
 

@@ -51,6 +51,20 @@ body, html, #container, #game-contents{
   width: 30%;
 }
 
-#chat-main, #chat-form-container{
+#chat-main{
+  height: 90%;
+  padding: 0;
+  margin: 0;
+}
 
+#chat-messages{
+  overflow-y: scroll;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+} 
+
+.white{
+  background-color: gray;
 }
