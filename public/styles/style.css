@@ -65,6 +65,19 @@ body, html, #container, #game-contents{
   width: 100%;
 } 
 
+#tools-container{
+  position: absolute;
+  bottom: 0%;
+  width: 100%;
+  text-align: center;
+}
+
+#tools-container button{
+  width: 5%;
+  height: 15px;
+}
+
+
 .white{
   background-color: gray;
 }

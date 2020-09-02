@@ -15,10 +15,36 @@ var urlEnd = urlArr[urlArr.length-1];
 const code = urlEnd.split('?')[0];
 const email = urlEnd.split('?')[1].replace('email=', '');
 
+let penColor = 'black';
+document.getElementById('red-btn').addEventListener('click', (e)=>{
+  penColor = 'red';
+});
+document.getElementById('orange-btn').addEventListener('click', (e)=>{
+  penColor = 'orange';
+});
+document.getElementById('yellow-btn').addEventListener('click', (e)=>{
+  penColor = 'yellow';
+});
+document.getElementById('green-btn').addEventListener('click', (e)=>{
+  penColor = 'green';
+});
+document.getElementById('blue-btn').addEventListener('click', (e)=>{
+  penColor = 'blue';
+});
+document.getElementById('purple-btn').addEventListener('click', (e)=>{
+  penColor = 'purple';
+});
+document.getElementById('white-btn').addEventListener('click', (e)=>{
+  penColor = 'white';
+});
+document.getElementById('black-btn').addEventListener('click', (e)=>{
+  penColor = 'black';
+});
+
+
 let usersList = [];
 
 socket.emit('joinRoom', {code, email});
-
 
 //resizing canvas
 canvas.height = canvasContainer.offsetHeight;
@@ -27,11 +53,11 @@ canvas.width = canvasContainer.offsetWidth;
 function draw(e){
   if(painting){
     let mousePos = getMousePos(canvas, e);
-    
+    context.strokeStyle = penColor;
     context.lineWidth = penWidth;
     context.lineCap = "round";
     context.lineTo(mousePos.x, mousePos.y);
-    socket.emit('draw', {code, mousePos});
+    socket.emit('draw', {code, mousePos, color: penColor});
 
     context.stroke();
   }else {
@@ -67,7 +93,11 @@ socket.on('data', ({word1, word2, word3})=>{
   console.log(word3);
 });
 
-socket.on('getDraw', ({mousePos})=>{
+socket.on('getDraw', ({mousePos, color})=>{
+
+  console.log('HEY');
+  console.log(color);
+  context.strokeStyle = color;
   context.lineWidth = penWidth;
   context.lineCap = "round";
   context.lineTo(mousePos.x, mousePos.y);

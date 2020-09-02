@@ -16,6 +16,7 @@ const {
 } = require('../utils/userList');
 
 let words = [];
+let drawerName = '';
 setWords()
 
 router.get('/', (req, res)=>{
@@ -57,8 +58,8 @@ io.on('connection', socket=>{
     io.emit('message', 'Welcome ' + user.nickname + "!");
     io.emit('userList', {users:getRoomUsers(code)});
 
-    socket.on('draw', ({mousePos, code})=>{
-      io.emit('getDraw', {mousePos});
+    socket.on('draw', ({mousePos, code, color})=>{
+      io.emit('getDraw', {mousePos, color});
     });
   
     socket.on('chatMessage', ({code, message, email})=>{
