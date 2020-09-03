@@ -4,11 +4,14 @@ const canvasContainer = document.getElementById('canvas-container');
 const playerContainer = document.getElementById('player-container');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.getElementById('chat-messages');
+const toolsContainter = document.getElementById('tools-container');
 
 var penWidth = 10;
 
 let context = canvas.getContext('2d');
 let painting = false;
+
+let currentDrawer = '';
 
 var urlArr = window.location.href.split('/');
 var urlEnd = urlArr[urlArr.length-1];
@@ -40,8 +43,9 @@ document.getElementById('white-btn').addEventListener('click', (e)=>{
 document.getElementById('black-btn').addEventListener('click', (e)=>{
   penColor = 'black';
 });
-document.getElementById('erase-btn').addEventListener('click', (e)=>{
-  penColor = 'erase';
+document.getElementById('delete-btn').addEventListener('click', (e)=>{
+  clearCanvas();
+  socket.emit('clearCanvas', {code});
 });
 
 
@@ -54,15 +58,9 @@ canvas.height = canvasContainer.offsetHeight;
 canvas.width = canvasContainer.offsetWidth;
 
 function draw(e){
-  if(painting){
+  if(painting && currentDrawer == email){
     let mousePos = getMousePos(canvas, e);
-    context.strokeStyle = penColor;
-    context.lineWidth = penWidth;
-    context.lineCap = "round";
-    context.lineTo(mousePos.x, mousePos.y);
-    socket.emit('draw', {code, mousePos, color: penColor});
-
-    context.stroke();
+    socket.emit('draw', {code, mousePos, color: penColor, email});
   }else {
     return;
   }
@@ -158,6 +156,29 @@ socket.on('sendMessage', ({message, nickname, messageWhite})=>{
   chatMessages.appendChild(div);    
   chatMessages.scrollTo(0,chatMessages.scrollHeight);
 }); 
+
+socket.on('notEnoughPlayers', ()=>{
+  alert('waiting for players');
+  clearCanvas();
+});
+
+socket.on('clearCanvas', clearCanvas);
+
+socket.on('setDrawer', ({drawerEmail})=>{
+  currentDrawer = drawerEmail;
+  if(email == drawerEmail){
+    toolsContainter.setAttribute('style', 'display:block');
+  }else{
+    toolsContainter.setAttribute('style', 'display:none');
+  }
+});
+
+
+
+function clearCanvas(){
+  context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();

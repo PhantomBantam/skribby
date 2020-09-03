@@ -16,7 +16,7 @@ const {
 } = require('../utils/userList');
 
 let words = [];
-let drawerName = '';
+let drawerEmail = '';
 setWords()
 
 router.get('/', (req, res)=>{
@@ -57,11 +57,17 @@ io.on('connection', socket=>{
     io.in(code).emit('sendMessage', {message: "Welcome " + user.nickname + "!", nickname: 'join', messageWhite});
     io.in(code).emit('userList', {users:getRoomUsers(code)});  
     messageWhite=!messageWhite;
-    
-    console.log('hey');
 
-    socket.on('draw', ({mousePos, code, color})=>{
-      socket.broadcast.to(code).emit('getDraw', {mousePos, color});
+    let users =  getRoomUsers(code);
+    if(users.length>1){
+      drawerEmail = users[Math.floor(Math.random()*users.length)].email;
+      io.in(code).emit('setDrawer', {drawerEmail});
+    }
+
+    socket.on('draw', ({mousePos, code, color, email})=>{
+      if(getRoomUsers(code).length>1){
+        io.in(code).emit('getDraw', {mousePos, color});
+      }
     });
   
     socket.on('chatMessage', ({code, message, email})=>{
@@ -77,6 +83,13 @@ io.on('connection', socket=>{
         messageWhite=!messageWhite;
       }
     });
+
+    socket.on('clearCanvas', ({code})=>{
+      socket.broadcast.to(code).emit('clearCanvas');
+      drawerEmail = '';
+    });
+
+
   });
 });
 
