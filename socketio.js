@@ -24,5 +24,12 @@ module.exports = {
         return io.to(room);
       }  
       return null;
+    }, 
+    in: function(room) {
+      if(io){
+        return io.in(room);
+      }  
+      return null;
     }
+
 }

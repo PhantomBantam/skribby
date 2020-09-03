@@ -40,6 +40,9 @@ document.getElementById('white-btn').addEventListener('click', (e)=>{
 document.getElementById('black-btn').addEventListener('click', (e)=>{
   penColor = 'black';
 });
+document.getElementById('erase-btn').addEventListener('click', (e)=>{
+  penColor = 'erase';
+});
 
 
 let usersList = [];
@@ -64,6 +67,15 @@ function draw(e){
     return;
   }
 }
+
+function drawLine(x, y){
+  context.strokeStyle = penColor;
+  context.lineWidth = penWidth;
+  context.lineCap = "round";
+  context.lineTo(x, y);
+  context.stroke;
+}
+
 canvas.addEventListener('mousedown', (e)=>{painting = true;});
 
 canvas.addEventListener('mouseup', (e)=>{
@@ -94,9 +106,7 @@ socket.on('data', ({word1, word2, word3})=>{
 });
 
 socket.on('getDraw', ({mousePos, color})=>{
-
-  console.log('HEY');
-  console.log(color);
+  console.log('getdraw');
   context.strokeStyle = color;
   context.lineWidth = penWidth;
   context.lineCap = "round";
@@ -105,6 +115,7 @@ socket.on('getDraw', ({mousePos, color})=>{
 }); 
 
 socket.on('userList', ({users})=>{
+  console.log('users');
   usersList = users;
   playerContainer.innerHTML = '';
   users.forEach(user => {
@@ -118,6 +129,7 @@ socket.on('userList', ({users})=>{
 });
 
 socket.on('sendMessage', ({message, nickname, messageWhite})=>{
+  console.log(message);
   let div = document.createElement('div');
   if(messageWhite){
     div.setAttribute('class', 'message white');
@@ -144,6 +156,7 @@ socket.on('sendMessage', ({message, nickname, messageWhite})=>{
     
   }
   chatMessages.appendChild(div);    
+  chatMessages.scrollTo(0,chatMessages.scrollHeight);
 }); 
 
 function getMousePos(canvas, evt) {

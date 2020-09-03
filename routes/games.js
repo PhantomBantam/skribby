@@ -43,35 +43,38 @@ io.on('connection', socket=>{
   let word2 = words[Math.floor(Math.random()*words.length)];
   let word3 = words[Math.floor(Math.random()*words.length)];
   
-  //io.emit instead of socket.emit because you want to emit to everyone
-  io.emit('data', ({word1, word2, word3}))
-
+  socket.emit('data', ({word1, word2, word3}));
 
   socket.on('joinRoom', async ({code, email}) => {
     const user = await User.findOne({email:email});
-    io.emit('sendMessage', {message: "Welcome " + user.nickname + "!", nickname: 'join', messageWhite});
     if(!getCurrentUser(email)){
       userJoin(socket.id, email, code, user.nickname);
     }
+
     socket.join(code);
+
     // Welcome current user
-    io.emit('message', 'Welcome ' + user.nickname + "!");
-    io.emit('userList', {users:getRoomUsers(code)});
+    io.in(code).emit('sendMessage', {message: "Welcome " + user.nickname + "!", nickname: 'join', messageWhite});
+    io.in(code).emit('userList', {users:getRoomUsers(code)});  
+    messageWhite=!messageWhite;
+    
+    console.log('hey');
 
     socket.on('draw', ({mousePos, code, color})=>{
-      io.emit('getDraw', {mousePos, color});
+      socket.broadcast.to(code).emit('getDraw', {mousePos, color});
     });
   
     socket.on('chatMessage', ({code, message, email})=>{
-      io.emit('sendMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
+      io.in(code).emit('sendMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
       messageWhite = !messageWhite;
     });
   
     socket.on('disconnect', ()=>{
-      console.log('hey');
       const user = userLeave(socket.id);
       if(user){ 
-        io.emit('sendMessage', {message: user.nickname + " has left", nickname: 'leave', messageWhite});
+        socket.broadcast.to(code).emit('sendMessage', {message: user.nickname + " has left", nickname: 'leave', messageWhite});
+        socket.broadcast.to(code).emit('userList', {users:getRoomUsers(code)});
+        messageWhite=!messageWhite;
       }
     });
   });
