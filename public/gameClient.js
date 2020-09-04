@@ -7,19 +7,20 @@ const chatMessages = document.getElementById('chat-messages');
 const toolsContainter = document.getElementById('tools-container');
 const wordChooser = document.getElementById("word-chooser");
 const wordDisplay = document.getElementById('word-display');
-
+const penWidthSlider = document.getElementById('pen-width');
 
 const word1Btn = document.getElementById('word-1');
 const word2Btn = document.getElementById('word-2');
 const word3Btn = document.getElementById('word-3');
 
-var penWidth = 10;
+var penWidth = penWidthSlider.value;
 
 let context = canvas.getContext('2d');
 let painting = false;
 
 let currentDrawer = '';
 let drawWord = '';
+let currentDashes = '';
 
 var urlArr = window.location.href.split('/');
 var urlEnd = urlArr[urlArr.length-1];
@@ -40,6 +41,7 @@ function setWord(e){
   drawWord = (e.target.innerHTML);
   wordChooser.setAttribute('style', 'display:none');
   wordDisplay.innerHTML = drawWord;
+  socket.emit('setDrawWord', {drawWord});
 }
 
 let usersList = [];
@@ -57,14 +59,6 @@ function draw(e){
   }else {
     return;
   }
-}
-
-function drawLine(x, y){
-  context.strokeStyle = penColor;
-  context.lineWidth = penWidth;
-  context.lineCap = "round";
-  context.lineTo(x, y);
-  context.stroke;
 }
 
 canvas.addEventListener('mousedown', (e)=>{painting = true;});
@@ -90,6 +84,10 @@ chatForm.addEventListener('submit', (e)=>{
   }
 });
 
+penWidthSlider.addEventListener("click", (e)=>{
+  penWidth = e.target.value;
+});
+
 canvas.addEventListener('mousemove', draw);
 
 socket.on('startRound', ({word1, word2, word3, rounds})=>{
@@ -107,7 +105,7 @@ socket.on('startRound', ({word1, word2, word3, rounds})=>{
 socket.on('getDraw', ({mousePos, color})=>{
   context.strokeStyle = color;
   context.lineJoin = penWidth;
-  context.lineWidth = 5;
+  context.lineWidth = penWidth;
 
   context.beginPath();
   if(prevMousePos.x){
@@ -122,12 +120,10 @@ socket.on('getDraw', ({mousePos, color})=>{
 }); 
 
 socket.on('resetPrevMouse', ()=>{
-  console.log('RESET');
   prevMousePos = {};
 });
 
 socket.on('userList', ({users})=>{
-  console.log('users');
   usersList = users;
   playerContainer.innerHTML = '';
   users.forEach(user => {
@@ -185,6 +181,11 @@ socket.on('setDrawer', ({drawerEmail})=>{
   }else{
     toolsContainter.setAttribute('style', 'display:none');
   }
+});
+
+socket.on('setDashes', ({dashes})=>{
+  currentDashes = dashes;
+  wordDisplay.innerHTML = dashes;
 });
 
 function clearCanvas(){

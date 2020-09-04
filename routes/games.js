@@ -90,7 +90,10 @@ io.on('connection', socket=>{
       io.in(code).emit('resetPrevMouse');
     });
 
-
+    socket.on('setDrawWord', ({drawWord})=>{
+      let dashes = drawWord.replace(/([a-zA-Z])/g, '_ ');
+      socket.broadcast.to(code).emit('setDashes', {dashes});
+    });
   });
 });
 

@@ -40,7 +40,7 @@ Brush
 Bubbles
 Bucket
 Bug
-Bus/School bus
+Bus
 Butter
 Butterfly
 Button
@@ -173,7 +173,7 @@ Oranges
 Owl
 Paints
 Pajamas
-Pan / Pot
+Pan
 Pants
 Paper
 Paper Towels
