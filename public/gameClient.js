@@ -5,6 +5,13 @@ const playerContainer = document.getElementById('player-container');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.getElementById('chat-messages');
 const toolsContainter = document.getElementById('tools-container');
+const wordChooser = document.getElementById("word-chooser");
+const wordDisplay = document.getElementById('word-display');
+
+
+const word1Btn = document.getElementById('word-1');
+const word2Btn = document.getElementById('word-2');
+const word3Btn = document.getElementById('word-3');
 
 var penWidth = 10;
 
@@ -12,6 +19,7 @@ let context = canvas.getContext('2d');
 let painting = false;
 
 let currentDrawer = '';
+let drawWord = '';
 
 var urlArr = window.location.href.split('/');
 var urlEnd = urlArr[urlArr.length-1];
@@ -19,35 +27,20 @@ const code = urlEnd.split('?')[0];
 const email = urlEnd.split('?')[1].replace('email=', '');
 
 let penColor = 'black';
-document.getElementById('red-btn').addEventListener('click', (e)=>{
-  penColor = 'red';
-});
-document.getElementById('orange-btn').addEventListener('click', (e)=>{
-  penColor = 'orange';
-});
-document.getElementById('yellow-btn').addEventListener('click', (e)=>{
-  penColor = 'yellow';
-});
-document.getElementById('green-btn').addEventListener('click', (e)=>{
-  penColor = 'green';
-});
-document.getElementById('blue-btn').addEventListener('click', (e)=>{
-  penColor = 'blue';
-});
-document.getElementById('purple-btn').addEventListener('click', (e)=>{
-  penColor = 'purple';
-});
-document.getElementById('white-btn').addEventListener('click', (e)=>{
-  penColor = 'white';
-});
-document.getElementById('black-btn').addEventListener('click', (e)=>{
-  penColor = 'black';
-});
-document.getElementById('delete-btn').addEventListener('click', (e)=>{
-  clearCanvas();
-  socket.emit('clearCanvas', {code});
-});
 
+let prevMousePos = {};
+
+setToolListeners();
+
+word1Btn.addEventListener('click', setWord);
+word2Btn.addEventListener('click', setWord);
+word3Btn.addEventListener('click', setWord);
+
+function setWord(e){
+  drawWord = (e.target.innerHTML);
+  wordChooser.setAttribute('style', 'display:none');
+  wordDisplay.innerHTML = drawWord;
+}
 
 let usersList = [];
 
@@ -79,6 +72,9 @@ canvas.addEventListener('mousedown', (e)=>{painting = true;});
 canvas.addEventListener('mouseup', (e)=>{
   painting = false
   context.beginPath();
+  if(currentDrawer==email){
+    socket.emit('liftedMouse');
+  }
 });
 canvas.addEventListener('mouseleave', (e)=>{
   painting = false
@@ -88,7 +84,6 @@ canvas.addEventListener('mouseleave', (e)=>{
 chatForm.addEventListener('submit', (e)=>{
   e.preventDefault();
   let message = (e.target.children[0].value);
-
   if(message!=''){
     e.target.elements.msg.value = "";
     socket.emit('chatMessage', {code, message, email});
@@ -97,20 +92,39 @@ chatForm.addEventListener('submit', (e)=>{
 
 canvas.addEventListener('mousemove', draw);
 
-socket.on('data', ({word1, word2, word3})=>{
-  console.log(word1);
-  console.log(word2);
-  console.log(word3);
+socket.on('startRound', ({word1, word2, word3, rounds})=>{
+  alert('Starting Round ' + rounds + "!");
+  if(currentDrawer == email){
+    wordChooser.setAttribute('style', 'display:block');
+    word1Btn.innerHTML = word1;
+    word2Btn.innerHTML = word2;
+    word3Btn.innerHTML = word3;
+  } else {
+    drawWord = '';
+  }
 });
 
 socket.on('getDraw', ({mousePos, color})=>{
-  console.log('getdraw');
   context.strokeStyle = color;
-  context.lineWidth = penWidth;
-  context.lineCap = "round";
-  context.lineTo(mousePos.x, mousePos.y);
+  context.lineJoin = penWidth;
+  context.lineWidth = 5;
+
+  context.beginPath();
+  if(prevMousePos.x){
+    context.moveTo(prevMousePos.x, prevMousePos.y);
+  }
+  context.lineTo(mousePos.x, mousePos.y)
+  context.closePath();
   context.stroke();
+
+  prevMousePos.x = mousePos.x;
+  prevMousePos.y = mousePos.y;
 }); 
+
+socket.on('resetPrevMouse', ()=>{
+  console.log('RESET');
+  prevMousePos = {};
+});
 
 socket.on('userList', ({users})=>{
   console.log('users');
@@ -173,12 +187,41 @@ socket.on('setDrawer', ({drawerEmail})=>{
   }
 });
 
-
-
 function clearCanvas(){
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function setToolListeners(){
+  document.getElementById('red-btn').addEventListener('click', (e)=>{
+    penColor = 'red';
+  });
+  document.getElementById('orange-btn').addEventListener('click', (e)=>{
+    penColor = 'orange';
+  });
+  document.getElementById('yellow-btn').addEventListener('click', (e)=>{
+    penColor = 'yellow';
+  });
+  document.getElementById('green-btn').addEventListener('click', (e)=>{
+    penColor = 'green';
+  });
+  document.getElementById('blue-btn').addEventListener('click', (e)=>{
+    penColor = 'blue';
+  });
+  document.getElementById('purple-btn').addEventListener('click', (e)=>{
+    penColor = 'purple';
+  });
+  document.getElementById('white-btn').addEventListener('click', (e)=>{
+    penColor = 'white';
+  });
+  document.getElementById('black-btn').addEventListener('click', (e)=>{
+    penColor = 'black';
+  });
+  document.getElementById('delete-btn').addEventListener('click', (e)=>{
+    clearCanvas();
+    socket.emit('clearCanvas', {code});
+  });
+  
+}
 
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();

@@ -7,6 +7,9 @@ const Game = require('../models/Game');
 const User = require('../models/User');
 
 let messageWhite = false;
+let rounds = 0;
+const MAX_ROUNDS = 10;
+const TIME_PER_ROUND = 1000 * 60 * 2; // 2 minutes
 
 const {
   userJoin,
@@ -38,13 +41,6 @@ router.get('/:gameCode', async (req, res)=>{
 });
 
 io.on('connection', socket=>{
-
-  let word1 = words[Math.floor(Math.random()*words.length)];
-  let word2 = words[Math.floor(Math.random()*words.length)];
-  let word3 = words[Math.floor(Math.random()*words.length)];
-  
-  socket.emit('data', ({word1, word2, word3}));
-
   socket.on('joinRoom', async ({code, email}) => {
     const user = await User.findOne({email:email});
     if(!getCurrentUser(email)){
@@ -62,6 +58,7 @@ io.on('connection', socket=>{
     if(users.length>1){
       drawerEmail = users[Math.floor(Math.random()*users.length)].email;
       io.in(code).emit('setDrawer', {drawerEmail});
+      startRound(code); 
     }
 
     socket.on('draw', ({mousePos, code, color, email})=>{
@@ -89,6 +86,10 @@ io.on('connection', socket=>{
       drawerEmail = '';
     });
 
+    socket.on('liftedMouse', ()=>{
+      io.in(code).emit('resetPrevMouse');
+    });
+
 
   });
 });
@@ -102,6 +103,32 @@ function setWords(){
     
     words = (raw);
   });
+}
+
+function startRound(code){
+  let word1 = words[Math.floor(Math.random()*words.length)];
+  let word2 = words[Math.floor(Math.random()*words.length)];
+  let word3 = words[Math.floor(Math.random()*words.length)];
+  rounds++;
+  
+  io.in(code).emit('startRound', ({word1, word2, word3, rounds}));
+
+  setTimeout(()=>{
+    rounds++;
+  }, TIME_PER_ROUND);
+
+  setTimeout(()=>{
+    
+  }, TIME_PER_ROUND/4);
+
+  setTimeout(()=>{
+    
+  }, TIME_PER_ROUND/2);
+
+  setTimeout(()=>{
+    
+  }, (TIME_PER_ROUND/4)*3);
+
 }
 
 
