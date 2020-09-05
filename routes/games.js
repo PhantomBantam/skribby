@@ -11,16 +11,11 @@ let rounds = 0;
 const MAX_ROUNDS = 10;
 const TIME_PER_ROUND = 1000 * 60 * 2; // 2 minutes
 
-const {
-  userJoin,
-  getCurrentUser,
-  userLeave,
-  getRoomUsers
-} = require('../utils/userList');
+const userHandler = require('../utils/userHandler');
+const wordHandler = require('../utils/wordHandler');
+const roomHandler = require('../utils/roomHandler');
 
-let words = [];
-let drawerEmail = '';
-setWords()
+setWords();
 
 router.get('/', (req, res)=>{
   if(req.isAuthenticated()){
@@ -43,55 +38,61 @@ router.get('/:gameCode', async (req, res)=>{
 io.on('connection', socket=>{
   socket.on('joinRoom', async ({code, email}) => {
     const user = await User.findOne({email:email});
-    if(!getCurrentUser(email)){
-      userJoin(socket.id, email, code, user.nickname);
+    if(!userHandler.getCurrentUser(email)){
+      userHandler.userJoin(socket.id, email, code, user.nickname);
     }
 
     socket.join(code);
 
     // Welcome current user
     io.in(code).emit('sendMessage', {message: "Welcome " + user.nickname + "!", nickname: 'join', messageWhite});
-    io.in(code).emit('userList', {users:getRoomUsers(code)});  
+    io.in(code).emit('userList', {users:userHandler.getRoomUsers(code)});  
     messageWhite=!messageWhite;
 
-    let users =  getRoomUsers(code);
+    let users =  userHandler.getRoomUsers(code);
     if(users.length>1){
-      drawerEmail = users[Math.floor(Math.random()*users.length)].email;
-      io.in(code).emit('setDrawer', {drawerEmail});
+      roomHandler.setDrawUser(users[Math.floor(Math.random()*users.length)].email, code);
+      io.in(code).emit('setDrawer', {drawerEmail: roomHandler.getDrawUser(code).email});
       startRound(code); 
     }
 
     socket.on('draw', ({mousePos, code, color, email})=>{
-      if(getRoomUsers(code).length>1){
+      if(userHandler.getRoomUsers(code).length>1){
         io.in(code).emit('getDraw', {mousePos, color});
       }
     });
   
     socket.on('chatMessage', ({code, message, email})=>{
+      let word = wordHandler.getWord(code);
+      if(typeof word != 'undefined'){
+        
+      }else{
+
+      }
       io.in(code).emit('sendMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
       messageWhite = !messageWhite;
     });
   
     socket.on('disconnect', ()=>{
-      const user = userLeave(socket.id);
+      const user = userHandler.userLeave(socket.id);
       if(user){ 
         socket.broadcast.to(code).emit('sendMessage', {message: user.nickname + " has left", nickname: 'leave', messageWhite});
-        socket.broadcast.to(code).emit('userList', {users:getRoomUsers(code)});
+        socket.broadcast.to(code).emit('userList', {users:userHandler.getRoomUsers(code)});
         messageWhite=!messageWhite;
       }
     });
 
     socket.on('clearCanvas', ({code})=>{
       socket.broadcast.to(code).emit('clearCanvas');
-      drawerEmail = '';
     });
 
     socket.on('liftedMouse', ()=>{
       io.in(code).emit('resetPrevMouse');
     });
 
-    socket.on('setDrawWord', ({drawWord})=>{
+    socket.on('setDrawWord', ({drawWord, code})=>{
       let dashes = drawWord.replace(/([a-zA-Z])/g, '_ ');
+      wordHandler.addWord(drawWord, code);
       socket.broadcast.to(code).emit('setDashes', {dashes});
     });
   });
@@ -118,6 +119,7 @@ function startRound(code){
 
   setTimeout(()=>{
     rounds++;
+    wordHandler.deleteWord(code);
   }, TIME_PER_ROUND);
 
   setTimeout(()=>{

@@ -41,7 +41,7 @@ function setWord(e){
   drawWord = (e.target.innerHTML);
   wordChooser.setAttribute('style', 'display:none');
   wordDisplay.innerHTML = drawWord;
-  socket.emit('setDrawWord', {drawWord});
+  socket.emit('setDrawWord', {drawWord, code});
 }
 
 let usersList = [];
@@ -92,7 +92,9 @@ canvas.addEventListener('mousemove', draw);
 
 socket.on('startRound', ({word1, word2, word3, rounds})=>{
   alert('Starting Round ' + rounds + "!");
+  console.log(currentDrawer + " " + email);
   if(currentDrawer == email){
+    console.log('RANNN');
     wordChooser.setAttribute('style', 'display:block');
     word1Btn.innerHTML = word1;
     word2Btn.innerHTML = word2;
@@ -103,9 +105,7 @@ socket.on('startRound', ({word1, word2, word3, rounds})=>{
 });
 
 socket.on('getDraw', ({mousePos, color})=>{
-  context.strokeStyle = color;
-  context.lineJoin = penWidth;
-  context.lineWidth = penWidth;
+  context.lineJoin = "round";
 
   context.beginPath();
   if(prevMousePos.x){
@@ -113,6 +113,8 @@ socket.on('getDraw', ({mousePos, color})=>{
   }
   context.lineTo(mousePos.x, mousePos.y)
   context.closePath();
+  context.strokeStyle = color;
+  context.lineWidth = penWidth;
   context.stroke();
 
   prevMousePos.x = mousePos.x;
