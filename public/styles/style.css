@@ -113,3 +113,6 @@ body, html, #container, #game-contents{
   color: green;
 }
 
+.correct {
+  color: #42f5a7;
+}

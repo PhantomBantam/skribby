@@ -56,21 +56,28 @@ io.on('connection', socket=>{
       startRound(code); 
     }
 
-    socket.on('draw', ({mousePos, code, color, email})=>{
+    socket.on('draw', ({mousePos, code, color, penWidth})=>{
       if(userHandler.getRoomUsers(code).length>1){
-        io.in(code).emit('getDraw', {mousePos, color});
+        io.in(code).emit('getDraw', {mousePos, color, penWidth});
       }
     });
   
     socket.on('chatMessage', ({code, message, email})=>{
       let word = wordHandler.getWord(code);
       if(typeof word != 'undefined'){
-        
-      }else{
-
+        if(message.toLowerCase().trim() == word.word.trim()){
+          socket.emit('correctGuess', {message: message + " is correct!"});
+          userHandler.setGuessed(email, true);
+          return;
+        }
       }
-      io.in(code).emit('sendMessage', {message, nickname: getCurrentUser(email).nickname, messageWhite});
-      messageWhite = !messageWhite;
+      let nickname = userHandler.getCurrentUser(email).nickname;
+      if(userHandler.getCurrentUser(email).guessed){
+        socket.emit('correctGuess', {message: nickname + ": " + message});
+      }else{
+        io.in(code).emit('sendMessage', {message, nickname, messageWhite});
+        messageWhite = !messageWhite;  
+      }
     });
   
     socket.on('disconnect', ()=>{

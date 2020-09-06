@@ -5,7 +5,7 @@ class UserHandler {
     this.users = [];
   }
   userJoin(id, email, room, nickname) {
-    const user = { id, email, room, nickname};
+    const user = { id, email, room, nickname, guessed: false};
     this.users.push(user);
   
     return user;
@@ -20,6 +20,14 @@ class UserHandler {
   
     if (index !== -1) {
       return this.users.splice(index, 1)[0];
+    }
+  }
+
+  setGuessed(email, guessed){
+    const index = this.users.findIndex(user => user.email === email);
+  
+    if (index !== -1) {
+      this.users[index].guessed = guessed;
     }
   }
   

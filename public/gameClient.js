@@ -13,38 +13,20 @@ const word1Btn = document.getElementById('word-1');
 const word2Btn = document.getElementById('word-2');
 const word3Btn = document.getElementById('word-3');
 
-var penWidth = penWidthSlider.value;
-
 let context = canvas.getContext('2d');
 let painting = false;
 
 let currentDrawer = '';
 let drawWord = '';
 let currentDashes = '';
+let prevMousePos = {};
+let usersList = [];
 
 var urlArr = window.location.href.split('/');
 var urlEnd = urlArr[urlArr.length-1];
 const code = urlEnd.split('?')[0];
 const email = urlEnd.split('?')[1].replace('email=', '');
-
 let penColor = 'black';
-
-let prevMousePos = {};
-
-setToolListeners();
-
-word1Btn.addEventListener('click', setWord);
-word2Btn.addEventListener('click', setWord);
-word3Btn.addEventListener('click', setWord);
-
-function setWord(e){
-  drawWord = (e.target.innerHTML);
-  wordChooser.setAttribute('style', 'display:none');
-  wordDisplay.innerHTML = drawWord;
-  socket.emit('setDrawWord', {drawWord, code});
-}
-
-let usersList = [];
 
 socket.emit('joinRoom', {code, email});
 
@@ -52,14 +34,12 @@ socket.emit('joinRoom', {code, email});
 canvas.height = canvasContainer.offsetHeight;
 canvas.width = canvasContainer.offsetWidth;
 
-function draw(e){
-  if(painting && currentDrawer == email){
-    let mousePos = getMousePos(canvas, e);
-    socket.emit('draw', {code, mousePos, color: penColor, email});
-  }else {
-    return;
-  }
-}
+setToolListeners();
+
+
+word1Btn.addEventListener('click', setWord);
+word2Btn.addEventListener('click', setWord);
+word3Btn.addEventListener('click', setWord);
 
 canvas.addEventListener('mousedown', (e)=>{painting = true;});
 
@@ -73,6 +53,9 @@ canvas.addEventListener('mouseup', (e)=>{
 canvas.addEventListener('mouseleave', (e)=>{
   painting = false
   context.beginPath();
+  if(currentDrawer==email){
+    socket.emit('liftedMouse');
+  }
 });
 
 chatForm.addEventListener('submit', (e)=>{
@@ -84,17 +67,11 @@ chatForm.addEventListener('submit', (e)=>{
   }
 });
 
-penWidthSlider.addEventListener("click", (e)=>{
-  penWidth = e.target.value;
-});
-
 canvas.addEventListener('mousemove', draw);
 
 socket.on('startRound', ({word1, word2, word3, rounds})=>{
   alert('Starting Round ' + rounds + "!");
-  console.log(currentDrawer + " " + email);
   if(currentDrawer == email){
-    console.log('RANNN');
     wordChooser.setAttribute('style', 'display:block');
     word1Btn.innerHTML = word1;
     word2Btn.innerHTML = word2;
@@ -104,7 +81,7 @@ socket.on('startRound', ({word1, word2, word3, rounds})=>{
   }
 });
 
-socket.on('getDraw', ({mousePos, color})=>{
+socket.on('getDraw', ({mousePos, color, penWidth})=>{
   context.lineJoin = "round";
 
   context.beginPath();
@@ -139,14 +116,12 @@ socket.on('userList', ({users})=>{
 });
 
 socket.on('sendMessage', ({message, nickname, messageWhite})=>{
-  console.log(message);
   let div = document.createElement('div');
   if(messageWhite){
     div.setAttribute('class', 'message white');
   }else{
     div.setAttribute('class', 'message');
   }
-  console.log(nickname);
   let current = div.getAttribute('class');
 
   switch(nickname){
@@ -190,6 +165,14 @@ socket.on('setDashes', ({dashes})=>{
   wordDisplay.innerHTML = dashes;
 });
 
+socket.on('correctGuess', ({message})=>{
+  let div = document.createElement('div');
+  div.setAttribute('class', 'message correct');
+  div.innerHTML = message;
+  chatMessages.appendChild(div);    
+  chatMessages.scrollTo(0,chatMessages.scrollHeight);  
+});
+
 function clearCanvas(){
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
@@ -223,7 +206,15 @@ function setToolListeners(){
     clearCanvas();
     socket.emit('clearCanvas', {code});
   });
-  
+}
+
+function draw(e){
+  if(painting && currentDrawer == email){
+    let mousePos = getMousePos(canvas, e);
+    socket.emit('draw', {code, mousePos, color: penColor, penWidth: penWidthSlider.value});
+  }else {
+    return;
+  }
 }
 
 function getMousePos(canvas, evt) {
@@ -233,3 +224,11 @@ function getMousePos(canvas, evt) {
     y: Math.floor(evt.clientY - rect.top)
   };
 }
+
+function setWord(e){
+  drawWord = (e.target.innerHTML);
+  wordChooser.setAttribute('style', 'display:none');
+  wordDisplay.innerHTML = drawWord;
+  socket.emit('setDrawWord', {drawWord, code});
+}
+
