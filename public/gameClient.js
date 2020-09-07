@@ -111,6 +111,12 @@ socket.on('userList', ({users})=>{
     div.setAttribute('class', 'player');
     div.innerHTML = user.nickname;
     
+    let pointsDiv = document.createElement('div');
+    pointsDiv.setAttribute('class', 'points');
+    pointsDiv.innerHTML = 'Points - 0';
+
+    div.appendChild(pointsDiv);
+    
     playerContainer.appendChild(div);  
   });
 });
@@ -171,6 +177,22 @@ socket.on('correctGuess', ({message})=>{
   div.innerHTML = message;
   chatMessages.appendChild(div);    
   chatMessages.scrollTo(0,chatMessages.scrollHeight);  
+});
+
+socket.on('giveFullDrawing', ({drawing})=>{
+  for(var i = 1; i<drawing.drawing.length; i++){
+    context.lineJoin = "round";
+
+    context.beginPath();
+    context.moveTo(drawing.drawing[i-1].x, drawing.drawing[i-1].y);
+    
+    context.lineTo(drawing.drawing[i].x, drawing.drawing[i].y)
+    context.closePath();
+    context.strokeStyle = drawing.drawing[i].color;
+    context.lineWidth = drawing.drawing[i].penWidth;
+    context.stroke();  
+  }
+
 });
 
 function clearCanvas(){

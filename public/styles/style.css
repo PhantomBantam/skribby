@@ -30,7 +30,6 @@ body, html, #container, #game-contents{
 }
 
 #player-container {
-  border: white solid 10px;
   height: 80%;
   width: 15%;
   
@@ -39,6 +38,8 @@ body, html, #container, #game-contents{
 .player{
   font-size: 1.5rem;
   text-align: center;
+  border: white solid 1px;
+
 }
 
 #canvas-container {
@@ -115,4 +116,13 @@ body, html, #container, #game-contents{
 
 .correct {
   color: #42f5a7;
+}
+
+.points {
+  font-size: 1rem;
+}
+
+#timer{
+  font-size: 1.3rem;
+  margin-left: 5%;
 }

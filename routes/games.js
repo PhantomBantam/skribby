@@ -50,14 +50,22 @@ io.on('connection', socket=>{
     messageWhite=!messageWhite;
 
     let users =  userHandler.getRoomUsers(code);
-    if(users.length>1){
+    
+    if(users.length>1 && typeof roomHandler.getDrawUser(code)=='undefined'){
       roomHandler.setDrawUser(users[Math.floor(Math.random()*users.length)].email, code);
       io.in(code).emit('setDrawer', {drawerEmail: roomHandler.getDrawUser(code).email});
       startRound(code); 
+    } else {
+      let word = wordHandler.getWord(code);
+      if(typeof word!='undefined'){
+        socket.emit('setDashes', {dashes: convertToDashes(word.word)});
+        socket.emit('giveFullDrawing', {drawing: roomHandler.getDrawing(code)});
+      }
     }
 
     socket.on('draw', ({mousePos, code, color, penWidth})=>{
       if(userHandler.getRoomUsers(code).length>1){
+        roomHandler.addPixel(mousePos.x, mousePos.y, penWidth, color, code);
         io.in(code).emit('getDraw', {mousePos, color, penWidth});
       }
     });
@@ -98,12 +106,17 @@ io.on('connection', socket=>{
     });
 
     socket.on('setDrawWord', ({drawWord, code})=>{
-      let dashes = drawWord.replace(/([a-zA-Z])/g, '_ ');
       wordHandler.addWord(drawWord, code);
-      socket.broadcast.to(code).emit('setDashes', {dashes});
+      socket.broadcast.to(code).emit('setDashes', {dashes: convertToDashes(drawWord)});
     });
   });
 });
+
+function convertToDashes(word){
+  let dashes = word.replace(/([a-zA-Z])/g, '_ ');
+  return dashes;
+}
+
 
 function setWords(){
   fs.readFile('./words.txt', (err, data)=>{
@@ -121,8 +134,29 @@ function startRound(code){
   let word2 = words[Math.floor(Math.random()*words.length)];
   let word3 = words[Math.floor(Math.random()*words.length)];
   rounds++;
+  roomHandler.setRoundTimer(TIME_PER_ROUND, code);
   
+  let interval = setInterval(()=>{
+    let time = roomHandler.decrementTimer(code);
+
+    if(time<TIME_PER_ROUND/4){
+
+    }else if(time<TIME_PER_ROUND/2){
+
+    }else if(time<(TIME_PER_ROUND/4)*3){
+      
+    }else if(time==0){
+
+    }
+
+  }, 1000);
+
+  roomHandler.addInterval(interval, code);
   io.in(code).emit('startRound', ({word1, word2, word3, rounds}));
+
+  
+
+
 
   setTimeout(()=>{
     rounds++;
