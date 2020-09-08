@@ -9,7 +9,7 @@ const User = require('../models/User');
 let messageWhite = false;
 let rounds = 0;
 const MAX_ROUNDS = 10;
-const TIME_PER_ROUND = 1000 * 60 * 2; // 2 minutes
+const TIME_PER_ROUND = 90; //seconds
 
 const userHandler = require('../utils/userHandler');
 const wordHandler = require('../utils/wordHandler');
@@ -54,7 +54,7 @@ io.on('connection', socket=>{
     if(users.length>1 && typeof roomHandler.getDrawUser(code)=='undefined'){
       roomHandler.setDrawUser(users[Math.floor(Math.random()*users.length)].email, code);
       io.in(code).emit('setDrawer', {drawerEmail: roomHandler.getDrawUser(code).email});
-      startRound(code); 
+      startRound(code, socket); 
     } else {
       let word = wordHandler.getWord(code);
       if(typeof word!='undefined'){
@@ -118,7 +118,6 @@ function convertToDashes(word){
   return dashes;
 }
 
-
 function setWords(){
   fs.readFile('./words.txt', (err, data)=>{
     let raw = Array.from(data.toString().split('\n'));
@@ -139,6 +138,14 @@ function startRound(code){
   
   let interval = setInterval(()=>{
     let time = roomHandler.decrementTimer(code);
+    io.in(code).emit('time', {time});
+    
+    if(time==(TIME_PER_ROUND-10)){
+      //choose word 1
+      if(typeof wordHandler.getWord(code)=='undefined'){
+        io.in(code).emit('autoWord', {word: word1, user: roomHandler.getDrawUser(code).email});
+      }
+    }
 
     if(time<TIME_PER_ROUND/4){
 
@@ -154,10 +161,6 @@ function startRound(code){
 
   roomHandler.addInterval(interval, code);
   io.in(code).emit('startRound', ({word1, word2, word3, rounds}));
-
-  
-
-
 
   setTimeout(()=>{
     rounds++;
@@ -177,7 +180,5 @@ function startRound(code){
   }, (TIME_PER_ROUND/4)*3);
 
 }
-
-
 
 module.exports = router;

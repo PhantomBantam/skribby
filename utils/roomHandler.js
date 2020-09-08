@@ -33,8 +33,8 @@ class RoomHandler {
     const index = this.roundTimers.findIndex(user => user.room === room);
 
     if (index !== -1) {
-      this.roundTimers[index]--;
-      return this.roundTimers[index];
+      this.roundTimers[index].seconds--;
+      return this.roundTimers[index].seconds;
     }
   }
   

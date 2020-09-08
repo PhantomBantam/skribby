@@ -8,6 +8,7 @@ const toolsContainter = document.getElementById('tools-container');
 const wordChooser = document.getElementById("word-chooser");
 const wordDisplay = document.getElementById('word-display');
 const penWidthSlider = document.getElementById('pen-width');
+const timer = document.getElementById('timer');
 
 const word1Btn = document.getElementById('word-1');
 const word2Btn = document.getElementById('word-2');
@@ -192,6 +193,20 @@ socket.on('giveFullDrawing', ({drawing})=>{
       context.lineWidth = drawing.drawing[i].penWidth;
       context.stroke();    
     }
+  }
+});
+
+socket.on('time', ({time})=>{
+  console.log(time);
+  timer.innerHTML = 'Time Left: ' + time;
+})
+
+socket.on('autoWord', ({word, user})=>{
+  if(user==email){
+    drawWord = word;
+    wordChooser.setAttribute('style', 'display:none');
+    wordDisplay.innerHTML = word;
+    socket.emit('setDrawWord', {drawWord:word, code});  
   }
 });
 
