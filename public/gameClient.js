@@ -181,18 +181,18 @@ socket.on('correctGuess', ({message})=>{
 
 socket.on('giveFullDrawing', ({drawing})=>{
   for(var i = 1; i<drawing.drawing.length; i++){
-    context.lineJoin = "round";
-
-    context.beginPath();
-    context.moveTo(drawing.drawing[i-1].x, drawing.drawing[i-1].y);
-    
-    context.lineTo(drawing.drawing[i].x, drawing.drawing[i].y)
-    context.closePath();
-    context.strokeStyle = drawing.drawing[i].color;
-    context.lineWidth = drawing.drawing[i].penWidth;
-    context.stroke();  
+    if(drawing.drawing[i-1].color!='lifted' && drawing.drawing[i].color!='lifted'){
+      context.lineJoin = "round";
+      context.beginPath();  
+      context.moveTo(drawing.drawing[i-1].x, drawing.drawing[i-1].y);
+      console.log(drawing.drawing[i-1].color);
+      context.lineTo(drawing.drawing[i].x, drawing.drawing[i].y)
+      context.closePath();
+      context.strokeStyle = drawing.drawing[i].color;
+      context.lineWidth = drawing.drawing[i].penWidth;
+      context.stroke();    
+    }
   }
-
 });
 
 function clearCanvas(){

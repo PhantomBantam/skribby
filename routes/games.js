@@ -102,6 +102,7 @@ io.on('connection', socket=>{
     });
 
     socket.on('liftedMouse', ()=>{
+      roomHandler.addPixel(0, 0, 0, 'lifted', code);
       io.in(code).emit('resetPrevMouse');
     });
 
