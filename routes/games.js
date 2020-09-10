@@ -9,7 +9,7 @@ const User = require('../models/User');
 let messageWhite = false;
 let rounds = 0;
 const MAX_ROUNDS = 10;
-const TIME_PER_ROUND = 90; //seconds
+const TIME_PER_ROUND = 16; //seconds
 
 const userHandler = require('../utils/userHandler');
 const wordHandler = require('../utils/wordHandler');
@@ -58,7 +58,7 @@ io.on('connection', socket=>{
     } else {
       let word = wordHandler.getWord(code);
       if(typeof word!='undefined'){
-        socket.emit('setDashes', {dashes: convertToDashes(word.word)});
+        socket.emit('setDashes', {dashes: roomHandler.getDash(code)});
         socket.emit('giveFullDrawing', {drawing: roomHandler.getDrawing(code)});
       }
     }
@@ -75,7 +75,9 @@ io.on('connection', socket=>{
       if(typeof word != 'undefined'){
         if(message.toLowerCase().trim() == word.word.trim()){
           socket.emit('correctGuess', {message: message + " is correct!"});
-          userHandler.setGuessed(email, true);
+          let time = roomHandler.getTime(code).seconds;
+          userHandler.setGuessed(email, true, (time*100));
+          
           return;
         }
       }
@@ -108,13 +110,16 @@ io.on('connection', socket=>{
 
     socket.on('setDrawWord', ({drawWord, code})=>{
       wordHandler.addWord(drawWord, code);
-      socket.broadcast.to(code).emit('setDashes', {dashes: convertToDashes(drawWord)});
+      let dashes = convertToDashes(drawWord);
+      socket.broadcast.to(code).emit('setDashes', {dashes});
+      roomHandler.setDashes(dashes, code);
     });
   });
 });
 
 function convertToDashes(word){
-  let dashes = word.replace(/([a-zA-Z])/g, '_ ');
+  let dashes = word.replace(' ', '   ');
+  dashes = dashes.replace(/([a-zA-Z])/g, '_ ');
   return dashes;
 }
 
@@ -124,15 +129,12 @@ function setWords(){
     for(let i = 0; i<raw.length; i++){
       raw[i] = raw[i].toLowerCase();
     }
-    
     words = (raw);
   });
 }
 
 function startRound(code){
-  let word1 = words[Math.floor(Math.random()*words.length)];
-  let word2 = words[Math.floor(Math.random()*words.length)];
-  let word3 = words[Math.floor(Math.random()*words.length)];
+  let {word1, word2, word3} = getThreeWords();
   rounds++;
   roomHandler.setRoundTimer(TIME_PER_ROUND, code);
   
@@ -147,38 +149,36 @@ function startRound(code){
       }
     }
 
-    if(time<TIME_PER_ROUND/4){
-
-    }else if(time<TIME_PER_ROUND/2){
-
-    }else if(time<(TIME_PER_ROUND/4)*3){
+    if(time==0){
+      console.log('yoy4');
+      io.in(code).emit('roundFinished');
+      //create roomReset method in room handler, as well as wordReset and userReset
+      //send points with io emit and then display it on the front end
+      //dont reset points
+      console.log(userHandler.getRoomUsers(code));
       
-    }else if(time==0){
+    }else if(time==Math.floor(TIME_PER_ROUND/4)){
+      io.in(code).emit('hint');
 
+    }else if(time==Math.floor(TIME_PER_ROUND/2)){
+      io.in(code).emit('hint');
+
+    }else if(time==Math.floor((TIME_PER_ROUND/4)*3)){
+      io.in(code).emit('hint');
+      
     }
-
   }, 1000);
 
   roomHandler.addInterval(interval, code);
   io.in(code).emit('startRound', ({word1, word2, word3, rounds}));
+}
 
-  setTimeout(()=>{
-    rounds++;
-    wordHandler.deleteWord(code);
-  }, TIME_PER_ROUND);
+function getThreeWords(){
+  let word1 = words[Math.floor(Math.random()*words.length)];
+  let word2 = words[Math.floor(Math.random()*words.length)];
+  let word3 = words[Math.floor(Math.random()*words.length)];
 
-  setTimeout(()=>{
-    
-  }, TIME_PER_ROUND/4);
-
-  setTimeout(()=>{
-    
-  }, TIME_PER_ROUND/2);
-
-  setTimeout(()=>{
-    
-  }, (TIME_PER_ROUND/4)*3);
-
+  return {word1, word2, word3};
 }
 
 module.exports = router;

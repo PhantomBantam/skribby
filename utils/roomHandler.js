@@ -5,6 +5,7 @@ class RoomHandler {
     this.roundTimers = [];
     this.intervals = [];
     this.drawings = [];
+    this.dashes = [];
   }
 
   setDrawUser(email, room) {
@@ -21,8 +22,30 @@ class RoomHandler {
 
   setRoundTimer(seconds, room) {
     let timer = {seconds, room};
-    this.roundTimers.push(timer);
+    const index = this.roundTimers.findIndex(timer => timer.room === room);
+
+    if (index !== -1) {
+      this.roundTimers[index] = timer;
+    }else{
+      this.roundTimers.push(timer);
+    }
     return timer;
+  }
+
+  setDashes(newDash, room) {
+    let dash = {newDash, room};
+    const index = this.dashes.findIndex(d => d.room === room);
+
+    if (index !== -1) {
+      this.dashes[index] = dash;
+    }else{
+      this.dashes.push(dash);
+    }
+    return dash;
+  }
+
+  getDash(room) {
+    return this.dashes.find(dash => dash.room === room);
   }
 
   addInterval(interval, code){
@@ -37,7 +60,11 @@ class RoomHandler {
       return this.roundTimers[index].seconds;
     }
   }
-  
+
+  getTime(room) {
+    return this.roundTimers.find(timer => timer.room === room);
+  }
+
   getDrawUser(room) {
     return this.drawUsers.find(user => user.room === room);
   }

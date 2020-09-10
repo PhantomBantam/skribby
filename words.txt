@@ -12,13 +12,13 @@ Bananas
 Bandaid
 Barn
 Bat
-Bathtub-Tub
+Bathtub
 Battery
 Bead
 Bean
 Bear
 Bed
-Bee-Bumblebee
+Bee
 Bell
 Belt
 Bike
@@ -133,7 +133,7 @@ Hot Dog
 House
 Ice Cream
 Iron
-Jacket-Coat
+Jacket
 Juice
 Jump rope
 Kangaroo
@@ -141,7 +141,7 @@ Keys
 Knee
 Knife
 Ladder
-Lamp-Light
+Lamp
 Leaf
 Leg
 Lion
@@ -150,7 +150,7 @@ Lunch
 Magazine
 Mailbox
 Marker
-Meat- Steak-Beef
+Meat
 Microphone
 Milk
 Mirror
@@ -187,12 +187,12 @@ Pig
 Pillow
 Pirate
 Pizza
-Plate-Dish
+Plate
 Play dough
 Pool
 Popcorn
 Popsicle
-Pot-Pan
+Pot
 Potatoes
 Pretzel
 Princess
@@ -202,7 +202,7 @@ Puppets
 Purse
 Puzzles
 Rabbit
-Radio-Music
+Radio
 Rain
 Rainbow
 Raisins
@@ -231,7 +231,7 @@ Snow
 Soap
 Socks
 Soda
-Sofa-Couch
+Sofa
 Soup
 Spaghetti
 Spider

@@ -23,23 +23,19 @@ class UserHandler {
     }
   }
 
-  setGuessed(email, guessed){
+  setGuessed(email, guessed, points){
     const index = this.users.findIndex(user => user.email === email);
   
     if (index !== -1) {
+      if(guessed){
+        this.users[index].points+=points;
+      }else{
+        this.users[index].points = 0;
+      }
       this.users[index].guessed = guessed;
     }
   }
 
-  addPoints(email, points){
-    const index = this.users.findIndex(user => user.email === email);
-  
-    if (index !== -1) {
-      this.users[index].points+=points;
-    }
-
-  }
-  
   getRoomUsers(room) {
     return this.users.filter(user => user.room === room);
   }

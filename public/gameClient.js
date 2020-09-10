@@ -168,6 +168,7 @@ socket.on('setDrawer', ({drawerEmail})=>{
 });
 
 socket.on('setDashes', ({dashes})=>{
+  console.log(dashes);
   currentDashes = dashes;
   wordDisplay.innerHTML = dashes;
 });
